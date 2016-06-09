@@ -4,7 +4,6 @@
 #include <boost/thread.hpp>
 #include <boost/system/error_code.hpp>
 #include "evl_net/tcp_server.h"
-#include <third_party/utility/data_dump.hpp>
 #include "evl_net/detail/net_mgr.h"
 
 using namespace evl::net;
