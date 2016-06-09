@@ -27,7 +27,8 @@ C++ 使用的log，里面使用了log4cplus 和 终端颜色输出
   3. 运行 ./test_server 29999
   
             16-06-09 10:33:40> [evl_net:DEBUG] listening for new client to connect @ port:29999
-  4. 有连接进来后，将显示：
+  4. 有连接进来后，将显示：  
+
             16-06-09 10:35:26> [evl_net:INFO] new client connected 127.0.0.1:39223
             16-06-09 10:35:26> [evl_net:DEBUG] new client connected: 0x0xcc21c0
             16-06-09 10:35:26> [evl_net:DEBUG] [EVL_NET]client session:0xcc21c0 working...
