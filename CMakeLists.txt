@@ -44,7 +44,7 @@ LINK_DIRECTORIES(
 SET(EXECUTABLE_OTUPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 INSTALL(FILES ${LIBRARY_OUTPUT_PATH}/libevlnet.a
-    ${LIBRARY_OUTPUT_PATH}/libevlnet.so DESTINATION lib/evlnet)                                   
+    ${LIBRARY_OUTPUT_PATH}/libevlnet.so DESTINATION lib)                                   
 INSTALL(DIRECTORY include/ DESTINATION include) 
 
 ADD_SUBDIRECTORY(source)

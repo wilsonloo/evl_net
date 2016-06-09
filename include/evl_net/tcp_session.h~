@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/basic_socket.hpp>
 #include <boost/function.hpp>
-#include <third_party/utility/include/read_write_array.hpp>
+#include <third_party/utility/read_write_array.hpp>
 #include "evl_net_def.h"
 
 namespace evl
