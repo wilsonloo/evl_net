@@ -2,8 +2,8 @@
 #define EVL_ENGINE_EVL_NET_NET_MGR_H_
 
 #include <boost/asio.hpp>
-#include <third_party/utility/singleton.hpp>
 #include <evl_logger/evl_logger.h>
+#include <third_party/utility/singleton.hpp>
 #include "../config.h"
 
 namespace evl

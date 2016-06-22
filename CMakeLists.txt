@@ -3,14 +3,20 @@ PROJECT(evlnet)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
-
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")                                                           
+
+set (CMAKE_CXX_STANDARD 11)
                                                                                                                 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")                                                                           
     MESSAGE(STATUS "current platform: Linux ")                                                                   
     ADD_DEFINITIONS(-D_PF_LINUX_)                                                                               
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")                                                                     
-    MESSAGE(STATUS "current platform: Windows")                                                                 
+    MESSAGE(STATUS "current platform: Windows")        
+    ADD_DEFINITIONS(-D_PF_WINDOWS_)            
+	ADD_DEFINITIONS(-D_WIN32_WINNT=0x0601)
+	ADD_DEFINITIONS(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
+	ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")                                                                     
     MESSAGE(STATUS "current platform: FreeBSD")                                                                 
 ELSE ()                                                                                                         
@@ -27,9 +33,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/include    
     ${PROJECT_SOURCE_DIR}/include/detail
     
-    /usr/local/boost_1_61_0
-    /usr/local/include
-    /usr/include
+	${OTHER_INCLUDE_DIRS}
 )
 
 
@@ -37,8 +41,7 @@ INCLUDE_DIRECTORIES(
 LINK_DIRECTORIES(
     ${PROJECT_BINARY_DIR}/lib
 
-    /usr/local/lib
-    /usr/lib
+	${OTHER_LIBRARY_DIRS}
 )
 
 SET(EXECUTABLE_OTUPUT_PATH ${PROJECT_BINARY_DIR}/bin)
