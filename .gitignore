@@ -1,0 +1,17 @@
+/build/Win32
+/build/CMakeFiles
+/build/Debug
+/build/lib
+/build/source
+/build/CMakeCache.txt
+/build/evlnet.opensdf
+/build/evlnet.sdf
+/build/evlnet.sln
+/build/evlnet.v12.suo
+/build/INSTALL.vcxproj
+/build/INSTALL.vcxproj.filters
+/build/ZERO_CHECK.vcxproj
+/build/ZERO_CHECK.vcxproj.filters
+/build/ALL_BUILD.vcxproj
+/build/ALL_BUILD.vcxproj.filters
+/build/cmake_install.cmake

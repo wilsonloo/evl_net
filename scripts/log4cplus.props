@@ -1,10 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <IncludePath>F:\workstation\yy_idol\third_party\log4cplus-1.2.0\include;$(IncludePath)</IncludePath>
+  <PropertyGroup Label="UserMacros">
+    <LOG4CPLUS_ROOT>F:\workstation\yy_idol\third_party\log4cplus-1.2.0\</LOG4CPLUS_ROOT>
   </PropertyGroup>
-  <ItemDefinitionGroup />
-  <ItemGroup />
+  <PropertyGroup>
+    <IncludePath>$(LOG4CPLUS_ROOT)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LOG4CPLUS_ROOT)msvc10\Win32\bin.Debug\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>log4cplusSD.lib;log4cplusD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="LOG4CPLUS_ROOT">
+      <Value>$(LOG4CPLUS_ROOT)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>
