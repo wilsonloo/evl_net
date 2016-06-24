@@ -5,9 +5,9 @@ aux_source_directory(. EVLNET_SRCS)
 
 # shared library
 ADD_LIBRARY(evlnet_dynamic SHARED ${EVLNET_SRCS})
-TARGET_LINK_LIBRARIES(evlnet_dynamic log4cplusD)
 SET(_DYNAMIC_LIB_OUTPUT_NAME "evl_net_dynamic-rtl")
 if (CMAKE_SYSTEM_NAME MATCHES "Windows") 
+    TARGET_LINK_LIBRARIES(evlnet_dynamic log4cplusD)
 	if (MSVC_COMPILER_VERSION MATCHES "v120")
 		SET(_DYNAMIC_LIB_OUTPUT_NAME ${_DYNAMIC_LIB_OUTPUT_NAME}_v120)
 	endif()
@@ -17,6 +17,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	endif()
 	
 else()
+    TARGET_LINK_LIBRARIES(evlnet_dynamic log4cplus)
 	
 endif()
 

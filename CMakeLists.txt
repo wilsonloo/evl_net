@@ -35,6 +35,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/include/detail
     
 	${OTHER_INCLUDE_DIRS}
+    /usr/local/boost_1_61_0
 )
 
 
@@ -48,7 +49,7 @@ LINK_DIRECTORIES(
 SET(EXECUTABLE_OTUPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 INSTALL(DIRECTORY include/ DESTINATION include) 
-INSTALL(FILES ${LIBRARY_OUTPUT_PATH}/libevlnet.a
-    ${LIBRARY_OUTPUT_PATH}/libevlnet.so DESTINATION lib)                                   
+INSTALL(FILES ${LIBRARY_OUTPUT_PATH}/libevl_net_static-rtl.a
+    ${LIBRARY_OUTPUT_PATH}/libevl_net_dynamic-rtl.so DESTINATION lib)                                   
 
 ADD_SUBDIRECTORY(source)
