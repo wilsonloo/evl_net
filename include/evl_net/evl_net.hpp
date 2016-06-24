@@ -21,6 +21,8 @@
 #define PLARFORM_TOOLSET "v110"
 #elif _MSC_VER == 1800
 #define PLARFORM_TOOLSET "v120"
+#elif _PF_LINUX_
+#define PLARFORM_TOOLSET "gxxv120"
 #else
 #error unsuported playerform toolset
 #endif
@@ -39,6 +41,7 @@
 
 #pragma comment(lib, RTQ_LIBRARY_NAME_FULLNAME".lib")
 
+#elif _PF_LINUX_
 #else
 #error not implemented yet for this unknown platform.
 #endif
