@@ -16,3 +16,6 @@
 /build/ALL_BUILD.vcxproj.filters
 /build/cmake_install.cmake
 *~
+*.h~
+*.un~
+/source/*.un~
