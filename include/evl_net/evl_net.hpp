@@ -22,7 +22,7 @@
 #elif _MSC_VER == 1800
 #define PLARFORM_TOOLSET "v120"
 #elif _PF_LINUX_
-#define PLARFORM_TOOLSET "gxxv120"
+#define PLARFORM_TOOLSET "gxx-all"
 #else
 #error unsuported playerform toolset
 #endif
@@ -50,6 +50,8 @@
 #undef EVL_LIB_RTL_OPT
 #undef EVL_LIB_DEBUG_OPT
 #undef RTQ_LIBRARY_NAME_FULLNAME
+#undef PLARFORM_TOOLSET
+
 
 #include "evl_net_def.h"
 #include "tcp_client.h"
