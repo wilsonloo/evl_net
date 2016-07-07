@@ -57,7 +57,7 @@ namespace evl
 
 		TCPSession::~TCPSession()
 		{
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...");
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...");
 			if(storage_impl_ != NULL)
 			{
 				delete storage_impl_;
@@ -77,7 +77,7 @@ namespace evl
 				writing_data_ = NULL;
 			}
 
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...Done");
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...Done");
 		}
 
 		void TCPSession::Start()
@@ -85,7 +85,7 @@ namespace evl
 			connected_ = true;
 			closed_ = false;
 
-			EVL_LOG_DEBUG (sNetMgr.get_evl_logger(), "[EVL_NET]client session:" << this << " working...");
+			EVL_LOG_DEBUG_FUNCLINE (sNetMgr.get_evl_logger(), "[EVL_NET]client session:" << this << " working...");
 
 			socket_->async_read_some(
 				boost::asio::buffer(data_), 
@@ -97,15 +97,17 @@ namespace evl
 		void TCPSession::HandleRead(const boost::system::error_code& err, 
 									size_t bytes_transfered)
 		{
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET] client session received... ");
+
 			if(err)
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] failed to read.error:" << err.message());
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET] client session received... Failed:" << err.message());
 
 				Close();
 				return;
 			}
 
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] client session received " << bytes_transfered << " data");
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET] client session received " << bytes_transfered << " data");
 #ifdef DEBUG_DEVELOP_EVL_NET
 			evl::utility::data_dump(stdout, &data_[0], bytes_transfered, "DATA-RECEIVED");
 #endif // DEBUG_DEVELOP_EVL_NET
@@ -130,34 +132,46 @@ namespace evl
 				boost::bind(&TCPSession::HandleRead, this, 
 				boost::asio::placeholders::error, 
 				boost::asio::placeholders::bytes_transferred));			
+
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET] client session received...Done");
 		}
 
 		void TCPSession::HandleWrite(const char* data, size_t bytes_transferred, 
 			const boost::system::error_code& err, size_t bytes_transfered)
 		{
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET]HandleWrite...");
+
 			if(err)
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]failed to write data, error:" << err.message());
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET]HandleWrite... Failed:" << err.message().c_str());
 
 				Close();
 				return;
 			}
-			else
+
+			// shutdown event maybe raised befown HandleWrite() event occurd
+			// if so, rawly close the sockets and not send data more
+			if(closed())
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]sesstion write data succeed.");
+				Close();
+				return;
+			}
+	
+			
 #ifdef DEBUG_DEVELOP_EVL_NET
-				evl::utility::data_dump(stdout, data, bytes_transfered, "DATA-WITTEN");
+			evl::utility::data_dump(stdout, data, bytes_transfered, "DATA-WITTEN");
 #endif // DEBUG_DEVELOP_EVL_NET
 
-				storage_impl_->on_data_written_handler_(this, data, bytes_transfered);
-				writing_data_->RemoveData(bytes_transferred);
-				_send_msg();
-			}			
+			storage_impl_->on_data_written_handler_(this, data, bytes_transfered);
+			writing_data_->RemoveData(bytes_transferred);
+			_send_msg();
+
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "[EVL_NET]HandleWrite...Done");
 		}
 
 		void TCPSession::Close()
 		{
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession ...");
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "closing TCPSession ...");
 
 			closed_ = true;
 			if (storage_impl_ != NULL)
@@ -166,7 +180,6 @@ namespace evl
 				storage_impl_->on_error_from_client_handler_(this, err);
 			}
 
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession...");
 			if (socket_ != NULL)
 			{
 				socket_->close();
@@ -174,7 +187,7 @@ namespace evl
 				// do not delete socket_, as it may be parsed outside
 			}
 
-			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession ...Done");
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "closing TCPSession ...Done");
 			delete this;
 		}
 
@@ -188,6 +201,8 @@ namespace evl
 
 		void TCPSession::SendMsg(const void* msg, size_t msg_length, bool delay_send /* = false */)
 		{
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "require send msg(1)...");
+
 			if (!connected())
 				return;
 
@@ -196,7 +211,7 @@ namespace evl
 
 			if(msg_length > MAX_DATA_LENGTH_PER_PACKET)
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "sending too much data out of per packet.length: " << msg_length);
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "sending too much data out of per packet.length: " << msg_length);
 
 				return;
 			}
@@ -204,7 +219,7 @@ namespace evl
 			bool is_writing = !writing_data_->is_empty();
 			if(!writing_data_->AddData(msg, msg_length))
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "failded to send msg, current writing not finished: " << msg_length);
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "failded to send msg, current writing not finished: " << msg_length);
 
 				return;
 			}
@@ -216,10 +231,14 @@ namespace evl
 			// 非延迟发送、并且并没有在写， 则马上发送
 			if(!is_writing)
 				_send_msg();
+
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "require send msg(1)...Done");
 		}
 
 		void TCPSession::SendMsg(const void* msg, size_t msg_length, UserDefinedDataCopyHandlerType copy_handler)
 		{
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "require send msg(2)...");
+
 			if (!connected())
 				return;
 
@@ -231,7 +250,7 @@ namespace evl
 
 			if(msg_length > MAX_DATA_LENGTH_PER_PACKET)
 			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "sending too much data out of per packet.length: " << msg_length);
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "sending too much data out of per packet.length: " << msg_length);
 
 				return;
 			}
@@ -258,6 +277,8 @@ namespace evl
 				_send_msg();
 			}
 			suceed = true;
+
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "require send msg(2)...Done");
 		}
 
 		void TCPSession::_send_msg()
