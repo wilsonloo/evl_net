@@ -61,6 +61,8 @@ namespace evl
 		void TCPServer::HandleAccept(TCPSession* new_session, 
 									const boost::system::error_code& err)
 		{
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "handling new accept...");
+
 			if(!err)
 			{
 				EVL_LOG_INFO(sNetMgr.get_evl_logger(), "new client connected " << new_session->get_remote_endpoint().address().to_v4().to_string()
@@ -79,6 +81,7 @@ namespace evl
 				}
 			}
 
+			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "handling new accept...Done");
 			StartAccept();
 		}
 	} // namespace net
