@@ -57,6 +57,7 @@ namespace evl
 
 		TCPSession::~TCPSession()
 		{
+			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...");
 			if(storage_impl_ != NULL)
 			{
 				delete storage_impl_;
@@ -75,6 +76,8 @@ namespace evl
 				delete writing_data_;
 				writing_data_ = NULL;
 			}
+
+			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "TCPSession::~TCPSession() ...Done");
 		}
 
 		void TCPSession::Start()
@@ -132,7 +135,14 @@ namespace evl
 		void TCPSession::HandleWrite(const char* data, size_t bytes_transferred, 
 			const boost::system::error_code& err, size_t bytes_transfered)
 		{
-			if(!err)
+			if(err)
+			{
+				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]failed to write data, error:" << err.message());
+
+				Close();
+				return;
+			}
+			else
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]sesstion write data succeed.");
 #ifdef DEBUG_DEVELOP_EVL_NET
@@ -142,18 +152,13 @@ namespace evl
 				storage_impl_->on_data_written_handler_(this, data, bytes_transfered);
 				writing_data_->RemoveData(bytes_transferred);
 				_send_msg();
-			}
-			else
-			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]failed to write data, error:" << err.message());
-
-				Close();
-				return;
-			}
+			}			
 		}
 
 		void TCPSession::Close()
 		{
+			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession ...");
+
 			closed_ = true;
 			if (storage_impl_ != NULL)
 			{
@@ -169,6 +174,7 @@ namespace evl
 				// do not delete socket_, as it may be parsed outside
 			}
 
+			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession ...Done");
 			delete this;
 		}
 
