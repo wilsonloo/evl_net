@@ -21,6 +21,8 @@ namespace evl
 			, user_data_(NULL)
 			, writing_data_(NULL)
 			, uuid_(UUID_INVALID_ID)
+			, connected_(false)
+			, closed_(true)
 		{
 			BOOST_ASSERT(on_data_received_handler != 0);
 			BOOST_ASSERT(on_data_written_handler != 0);
@@ -43,6 +45,8 @@ namespace evl
 			, user_data_(NULL)
 			, writing_data_(NULL)
 			, uuid_(UUID_INVALID_ID)
+			, connected_(false)
+			, closed_(true)
 		{
 			BOOST_ASSERT(on_data_received_handler != 0);
 			BOOST_ASSERT(on_data_written_handler != 0);
@@ -75,6 +79,9 @@ namespace evl
 
 		void TCPSession::Start()
 		{
+			connected_ = true;
+			closed_ = false;
+
 			EVL_LOG_DEBUG (sNetMgr.get_evl_logger(), "[EVL_NET]client session:" << this << " working...");
 
 			socket_->async_read_some(
@@ -87,33 +94,40 @@ namespace evl
 		void TCPSession::HandleRead(const boost::system::error_code& err, 
 									size_t bytes_transfered)
 		{
-			if(!err)
-			{
-				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] client session received " << bytes_transfered << " data");
-#ifdef DEBUG_DEVELOP_EVL_NET
-				evl::utility::data_dump(stdout, &data_[0], bytes_transfered, "DATA-RECEIVED");
-#endif // DEBUG_DEVELOP_EVL_NET
-
-				storage_impl_->on_data_received_handler_(this, &data_[0], bytes_transfered);
-
-				/*
-				boost::asio::async_write(*socket_, 
-					boost::asio::buffer(data_, bytes_transfered), 
-					boost::bind(&TCPSession::HandleWrite, this, &data_[0], bytes_transfered,
-					boost::asio::placeholders::error));
-				*/
-				socket_->async_read_some(
-					boost::asio::buffer(data_), 
-					boost::bind(&TCPSession::HandleRead, this, 
-					boost::asio::placeholders::error, 
-					boost::asio::placeholders::bytes_transferred));
-			}
-			else
+			if(err)
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] failed to read.error:" << err.message());
 				storage_impl_->on_error_from_client_handler_(this, err);
-				delete this;
+
+				Close();
+				return;
 			}
+
+			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] client session received " << bytes_transfered << " data");
+#ifdef DEBUG_DEVELOP_EVL_NET
+			evl::utility::data_dump(stdout, &data_[0], bytes_transfered, "DATA-RECEIVED");
+#endif // DEBUG_DEVELOP_EVL_NET
+
+			storage_impl_->on_data_received_handler_(this, &data_[0], bytes_transfered);
+
+			// session may be set closed on_data_received_handler_()
+			if (closed())
+			{
+				Close();
+				return;
+			}
+
+			/*
+			boost::asio::async_write(*socket_, 
+				boost::asio::buffer(data_, bytes_transfered), 
+				boost::bind(&TCPSession::HandleWrite, this, &data_[0], bytes_transfered,
+				boost::asio::placeholders::error));
+			*/
+			socket_->async_read_some(
+				boost::asio::buffer(data_), 
+				boost::bind(&TCPSession::HandleRead, this, 
+				boost::asio::placeholders::error, 
+				boost::asio::placeholders::bytes_transferred));			
 		}
 
 		void TCPSession::HandleWrite(const char* data, size_t bytes_transferred, 
@@ -135,22 +149,41 @@ namespace evl
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]failed to write data, error:" << err.message());
 
 				storage_impl_->on_error_from_client_handler_(this, err);
-				delete this;
+				Close();
+				return;
 			}
 		}
 
 		void TCPSession::Close()
 		{
+			closed_ = true;
 			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession...");
 			if (socket_ != NULL)
 			{
 				socket_->close();
-				socket_ = NULL;
+
+				// do not delete socket_, as it may be parsed outside
 			}
+
+			delete this;
+		}
+
+		void TCPSession::Shutdown()
+		{
+			if (closed())
+				return;
+
+			closed_ = true;
 		}
 
 		void TCPSession::SendMsg(const void* msg, size_t msg_length, bool delay_send /* = false */)
 		{
+			if (!connected())
+				return;
+
+			if (closed())
+				return;
+
 			if(msg_length > MAX_DATA_LENGTH_PER_PACKET)
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "sending too much data out of per packet.length: " << msg_length);
@@ -177,6 +210,12 @@ namespace evl
 
 		void TCPSession::SendMsg(const void* msg, size_t msg_length, UserDefinedDataCopyHandlerType copy_handler)
 		{
+			if (!connected())
+				return;
+
+			if (closed())
+				return;
+
 			if(copy_handler == 0)
 				return;
 
@@ -230,6 +269,12 @@ namespace evl
 
 		void TCPSession::Flush()
 		{
+			if (!connected())
+				return;
+
+			if (closed())
+				return;
+
 			_send_msg();
 		}
 	}

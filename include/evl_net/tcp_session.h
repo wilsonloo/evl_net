@@ -56,13 +56,19 @@ namespace evl
 			inline void set_tcp_server(TCPServer* server){ tcp_server_ = server; }
 			inline TCPServer* get_tcp_server(){ return tcp_server_; }
 
-			inline EndpointType get_remote_endpoint()const
-			{
-				return socket_->remote_endpoint();
-			}
+			inline EndpointType get_remote_endpoint()const{ return socket_->remote_endpoint();}
+
+			inline bool connected()const { return connected_; }
+			inline bool closed()const { return closed_; }
 
 			void Start();
+
+			// close raw socket immedialy,may be unsafe (considering Shutdown)
 			void Close();
+
+			// mark to close raw socket at the tail of io operation
+			void Shutdown();
+
 			void SendMsg(const void* msg, size_t msg_length, bool delay_send = false);
 			void SendMsg(const void* msg, size_t msg_length, UserDefinedDataCopyHandlerType copy_handler);
 			void _send_msg();
@@ -82,6 +88,9 @@ namespace evl
 			
 			// 
 			UUIDType uuid_;
+
+			bool connected_;
+			bool closed_; 
 
 		private:
 			TCPSessionStorageImpl* storage_impl_;
