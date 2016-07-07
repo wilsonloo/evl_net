@@ -85,6 +85,14 @@ namespace evl
 				storage_impl_->on_new_client_connected_handler_(new_session);
 				new_session->Start();
 			}
+			catch (const boost::system::system_error& ex)
+			{
+				new_session->Shutdown();
+				delete new_session;
+				new_session = NULL;
+
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "handling new accept...Failed:" << ex.what());
+			}
 			catch (const boost::exception& ex)
 			{
 				new_session->Shutdown();
