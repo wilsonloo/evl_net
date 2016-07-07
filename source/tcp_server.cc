@@ -1,6 +1,8 @@
 #include "evl_net/tcp_server.h"
 #include "evl_net/detail/net_mgr.h"
 #include <boost/bind.hpp>
+#include <boost/exception/exception.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <evl_logger/evl_logger.h>
 #include "evl_net/evl_net_def.h"
 #include "evl_net/tcp_session.h"
@@ -67,31 +69,31 @@ namespace evl
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "failed to recieve client session:" << &new_session << " with error:" << err.message());
 
-				if (new_session != NULL)
-				{
-					new_session->Shutdown();
-					delete new_session;
-					new_session = NULL;
-				}
 
-				return;
-			}
-			
-			// as HandleAccept() is a async event, session may be invalid now
-			BOOST_ASSERT(new_session != NULL);
-			if (!new_session->connected() || new_session->closed())
-			{
 				new_session->Shutdown();
 				delete new_session;
 				new_session = NULL;
 				return;
 			}
+			
+			// as HandleAccept() is a async event, session may be invalid now
+			try
+			{
+				EVL_LOG_INFO(sNetMgr.get_evl_logger(), "new client connected " << new_session->get_remote_endpoint().address().to_v4().to_string()
+					<< ":" << new_session->get_remote_endpoint().port());
 
-			EVL_LOG_INFO(sNetMgr.get_evl_logger(), "new client connected " << new_session->get_remote_endpoint().address().to_v4().to_string()
-				<< ":" << new_session->get_remote_endpoint().port());
-
-			storage_impl_->on_new_client_connected_handler_(new_session);
-			new_session->Start();
+				storage_impl_->on_new_client_connected_handler_(new_session);
+				new_session->Start();
+			}
+			catch (const boost::exception& ex)
+			{
+				new_session->Shutdown();
+				delete new_session;
+				new_session = NULL;
+				
+				EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "handling new accept...Failed:" << boost::diagnostic_information(ex)
+					<< boost::diagnostic_information_what(ex));
+			}
 
 			EVL_LOG_DEBUG_FUNCLINE(sNetMgr.get_evl_logger(), "handling new accept...Done");
 			StartAccept();
