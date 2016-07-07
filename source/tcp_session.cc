@@ -97,7 +97,6 @@ namespace evl
 			if(err)
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET] failed to read.error:" << err.message());
-				storage_impl_->on_error_from_client_handler_(this, err);
 
 				Close();
 				return;
@@ -148,7 +147,6 @@ namespace evl
 			{
 				EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "[EVL_NET]failed to write data, error:" << err.message());
 
-				storage_impl_->on_error_from_client_handler_(this, err);
 				Close();
 				return;
 			}
@@ -157,6 +155,12 @@ namespace evl
 		void TCPSession::Close()
 		{
 			closed_ = true;
+			if (storage_impl_ != NULL)
+			{
+				boost::system::error_code err;
+				storage_impl_->on_error_from_client_handler_(this, err);
+			}
+
 			EVL_LOG_DEBUG(sNetMgr.get_evl_logger(), "closing TCPSession...");
 			if (socket_ != NULL)
 			{
