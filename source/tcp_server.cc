@@ -40,7 +40,7 @@ namespace evl
 
 		void TCPServer::StartAccept()
 		{
-			EVL_LOG_DEBUG (sNetMgr.get_evl_logger(), "listening for new client to connect @ port:" << static_cast<unsigned int>(port_));
+			// EVL_LOG_DEBUG (sNetMgr.get_evl_logger(), "listening for new client to connect @ port:" << static_cast<unsigned int>(port_));
 
 			TCPSession* new_session = new TCPSession(storage_impl_->io_service_,
 													storage_impl_->on_data_received_handler_, 
