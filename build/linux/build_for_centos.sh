@@ -1,1 +1,1 @@
-cmake -DMSVC_COMPILER_VERSION:STRING=v120 -DCMAKE_BUILD_TYPE:STRING=Debug -DOTHER_INCLUDE_DIRS="/usr/local/include:/usr/local/boost_1_61_0" -DOTHER_LIBRARY_DIRS="/usr/local/boost_1_61_0/stage/lib:/usr/local/lib" ../..
+cmake -DOTHER_INCLUDE_DIRS="/usr/local/include:/usr/local/boost_1_61_0:/home/wilson/yy_idol_build/third_party/evl_logger/include/" -DOTHER_LIBRARY_DIRS="/usr/local/boost_1_61_0/stage/lib:/usr/local/lib:/home/wilson/yy_idol_build/third_party/evl_logger/build/linux/lib/" ../..

@@ -30,6 +30,7 @@ ADD_DEFINITIONS(-DEVL_NET_LIBRARY_SOURCE)
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/../../ # for third_party
+    /home/wilson/yy_idol_build/third_party/evl_logger/include
     ${PROJECT_SOURCE_DIR}/include    
     
     ${PROJECT_SOURCE_DIR}/include/detail
