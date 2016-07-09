@@ -1,6 +1,7 @@
 #include "evl_net/tcp_server.h"
 #include "evl_net/detail/net_mgr.h"
 #include <boost/bind.hpp>
+#include <boost/assert.hpp>
 #include <boost/exception/exception.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 #include <evl_logger/evl_logger.h>
@@ -12,15 +13,20 @@ namespace evl
 {
 	namespace net
 	{
-		TCPServer::TCPServer(boost::asio::io_service& io_service, boost::uint16_t port,
+		TCPServer::TCPServer(boost::asio::io_service& io_service, 
+			const char* ip,
+			boost::uint16_t port,
 			OnNewClientConnectedHandlerType on_new_client_connected_handler, 
 			OnDataReceivedHandlerType on_data_received_handler, 
 			OnDataWrittenHandlerType on_data_written_handler, 
 			OnErrorHandlerType on_error_from_client_handler)
-			: port_(port)
+			: ip_(ip)
+			, port_(port)
 			, storage_impl_(NULL)
 		{
-			storage_impl_ = new TCPServerStorageImpl(io_service, port, 
+			storage_impl_ = new TCPServerStorageImpl(io_service, 
+				ip_.c_str(),
+				port_, 
 				on_new_client_connected_handler, 
 				on_data_received_handler, 
 				on_data_written_handler,
@@ -55,7 +61,8 @@ namespace evl
 			}
 			new_session->set_uuid(uuid);
 
-			storage_impl_->acceptor_.async_accept(new_session->socket(), 
+			BOOST_ASSERT(storage_impl_->acceptor_ != NULL);
+			storage_impl_->acceptor_->async_accept(new_session->socket(), 
 				boost::bind(&TCPServer::HandleAccept, this, new_session, 
 				boost::asio::placeholders::error));
 		}

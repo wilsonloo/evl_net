@@ -16,15 +16,20 @@ namespace evl
 		{
 			friend class TCPServer;
 		public:
-			TCPServerStorageImpl(boost::asio::io_service& io_service, short port, 
+			TCPServerStorageImpl(boost::asio::io_service& io_service, 
+				const char* ip,
+				short port, 
 				OnNewClientConnectedHandlerType on_new_client_connected_handler,
 				OnDataReceivedHandlerType on_data_received_handler, 
 				OnDataWrittenHandlerType on_data_written_handler,
 				OnErrorHandlerType on_error_from_client_handler);
 
+			virtual ~TCPServerStorageImpl();
+
 		private:
 			boost::asio::io_service& io_service_;
-			boost::asio::ip::tcp::acceptor acceptor_;
+			boost::asio::ip::tcp::endpoint* endpoint_;
+			boost::asio::ip::tcp::acceptor* acceptor_;
 
 			OnNewClientConnectedHandlerType on_new_client_connected_handler_;
 			OnDataReceivedHandlerType on_data_received_handler_;

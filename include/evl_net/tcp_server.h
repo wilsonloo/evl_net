@@ -1,6 +1,7 @@
 #ifndef EVL_NET_TCP_SERVER_H_
 #define EVL_NET_TCP_SERVER_H_
 
+#include <string>
 #include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include "evl_net_def.h"
@@ -17,7 +18,8 @@ namespace evl
 		class EVL_NET_DECL TCPServer
 		{
 		public:
-			TCPServer(boost::asio::io_service& io_service, 
+			TCPServer(boost::asio::io_service& io_service,
+				const char* ip,
 				boost::uint16_t port, 
 				OnNewClientConnectedHandlerType on_new_client_connected_handler,
 				OnDataReceivedHandlerType on_data_received_handler,
@@ -39,6 +41,8 @@ namespace evl
 			void HandleAccept(TCPSession* new_session, 
 				const boost::system::error_code& err);
 
+			// ip
+			std::string ip_;
 			// ¶Ë¿Ú
 			boost::uint16_t port_;
 
